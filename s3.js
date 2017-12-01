@@ -11,6 +11,7 @@ function put({ bin, rev }, html) {
   return new Promise((resolve, reject) => {
     const req = client.put(url, {
       'x-amz-acl': 'public-read',
+      'x-amz-storage-class': 'REDUCED_REDUNDANCY',
       'Content-Length': Buffer.byteLength(html),
       'Content-Type': 'text/html',
     });

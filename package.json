@@ -5,6 +5,11 @@
   "engines": {
     "node": "8.x.x"
   },
+  "now": {
+    "dotenv": ".env.production",
+    "name": "output-jsbin",
+    "alias": "output-jsbin"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -1,0 +1,10 @@
+<RoutingRules>
+  <RoutingRule>
+    <Condition>
+      <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
+    </Condition>
+    <Redirect>
+      <HostName>output-jsbin.now.sh</HostName>
+    </Redirect>
+  </RoutingRule>
+</RoutingRules>

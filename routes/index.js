@@ -16,7 +16,7 @@ router.get('/:bin/:rev', (req, res, next) => {
   next('route');
 });
 
-router.get('/:bin/*?', async (req, res, next) => {
+router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
   const rev = res.locals.rev || 'latest';
   fetch(`${API}/bin/${req.params.bin}/${rev}`)
     .then(res => {
