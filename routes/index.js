@@ -29,8 +29,7 @@ router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
     })
     .then(json => binToFile(json))
     .then(html => {
-      res.set(headers);
-      res.send(html);
+      res.set(headers).send(html);
       s3
         .put({ bin: req.params.bin, rev }, html)
         .then(url => console.log('saved %s', url))

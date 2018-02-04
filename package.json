@@ -20,7 +20,7 @@
   "author": "Remy Sharp",
   "license": "MIT",
   "dependencies": {
-    "@remy/envy": "^1.0.1",
+    "@remy/envy": "^3.1.1",
     "bin-to-file": "^1.0.1",
     "express": "^4.16.2",
     "http-errors": "^1.6.2",
