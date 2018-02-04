@@ -16,9 +16,10 @@ const client = knox.createClient({
 function put({ bin, rev }, html) {
   const url = `/${bin}/${rev}`;
   return new Promise((resolve, reject) => {
-    const req = client.put(url, Object.assign({
+    const req = client.put(url, {
       'Content-Length': Buffer.byteLength(html),
-    }, headers);
+      ...headers,
+    });
 
     req.on('response', res => {
       if (res.statusCode === 200) {
