@@ -3,6 +3,7 @@ const createError = require('http-errors');
 const fetch = require('node-fetch');
 const binToFile = require('bin-to-file');
 const s3 = require('../s3');
+const headers = require('../headers');
 const API = process.env.API;
 const router = express.Router();
 module.exports = router;
@@ -28,6 +29,7 @@ router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
     })
     .then(json => binToFile(json))
     .then(html => {
+      res.set(headers);
       res.send(html);
       s3
         .put({ bin: req.params.bin, rev }, html)

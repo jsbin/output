@@ -1,4 +1,11 @@
 const knox = require('knox');
+const headers = Object.assign(
+  {
+    'x-amz-acl': 'public-read',
+    'x-amz-storage-class': 'REDUCED_REDUNDANCY',
+  },
+  require('./headers')
+);
 const client = knox.createClient({
   key: process.env.AWS_ACCESS_KEY_ID,
   secret: process.env.AWS_SECRET_ACCESS_KEY,
@@ -9,17 +16,16 @@ const client = knox.createClient({
 function put({ bin, rev }, html) {
   const url = `/${bin}/${rev}`;
   return new Promise((resolve, reject) => {
-    const req = client.put(url, {
-      'x-amz-acl': 'public-read',
-      'x-amz-storage-class': 'REDUCED_REDUNDANCY',
+    const req = client.put(url, Object.assign({
       'Content-Length': Buffer.byteLength(html),
-      'Content-Type': 'text/html',
-    });
+    }, headers);
 
     req.on('response', res => {
       if (res.statusCode === 200) {
         resolve(req.url);
       }
+
+      // FIXME if not 200?
     });
     req.on('error', reject);
     req.end(html);
