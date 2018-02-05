@@ -27,15 +27,18 @@ router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
 
       return res.json();
     })
-    .then(json => binToFile(json))
-    .then(html => {
-      res.set(headers).send(html);
+    .then(json => ({ html: binToFile(json), json }))
+    .then(({ html, json }) => {
+      // res.set(headers).send(html);
       s3
-        .put({ bin: req.params.bin, rev }, html)
-        .then(url => console.log('saved %s', url))
+        .put({ bin: req.params.bin, rev: json.snapshot }, html)
+        .then(url => {
+          console.log('saved %s', url);
+          res.redirect(url.replace('s3.amazonaws.com', ''));
+        })
         .catch(e => console.log(e));
     })
     .catch(next);
 });
 
-router.get('/', (req, res) => res.send('ok'));
+router.use(require('./version'));
