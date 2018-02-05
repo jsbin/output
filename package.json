@@ -15,7 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "GIT_REV=$(git rev-parse HEAD) NODE_ENV=development nodemon",
     "start": "NODE_ENV=production node .",
-    "deploy": "now -e GIT_REV=$(git rev-parse HEAD)"
+    "deploy": "now -e GIT_REV=$(git rev-parse HEAD) && now alias"
   },
   "keywords": [],
   "author": "Remy Sharp",

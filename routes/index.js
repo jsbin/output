@@ -31,7 +31,7 @@ router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
     .then(({ html, json }) => {
       // res.set(headers).send(html);
       s3
-        .put({ bin: req.params.bin, rev: json.snapshot }, html)
+        .put({ bin: req.params.bin, rev: json.revision }, html)
         .then(url => {
           console.log('saved %s', url);
           res.redirect(url.replace('s3.amazonaws.com', ''));
