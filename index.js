@@ -4,6 +4,10 @@ require('@remy/envy');
 
 app.disable('x-powered-by');
 
+app.use(express.static('./public'));
+
+app.use('/blaze', require('./routes/blaze'));
+
 app.use('/', require('./routes'));
 app.use(require('./error'));
 

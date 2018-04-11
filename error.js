@@ -56,9 +56,7 @@ const font = `/*! system-font.css v1.1.0 | CC0-1.0 License | github.com/jonathan
 	src: local(".SFNSText-BoldItalic"), local(".HelveticaNeueDeskInterface-BoldItalic"), local(".LucidaGrandeUI"), local("Segoe UI Bold Italic"), local("Ubuntu Bold Italic"), local("Roboto-BoldItalic"), local("DroidSans-Bold"), local("Tahoma Bold");
 }`;
 
-const html = s => `<meta name="viewport" content="width=device-width"><style>${
-  font
-} body {
+const html = s => `<meta name="viewport" content="width=device-width"><style>${font} body {
   font-size: 24px;
   font-weight: 500;
   text-align: center;
@@ -69,5 +67,10 @@ const html = s => `<meta name="viewport" content="width=device-width"><style>${
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (error, req, res, next) => {
+  if (req.accepts('json')) {
+    return res
+      .status(error.status)
+      .json({ message: error.message, stack: error.stack });
+  }
   res.status(error.status).send(html(error.message));
 };
