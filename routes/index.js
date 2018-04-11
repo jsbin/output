@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const fetch = require('node-fetch');
 const binToFile = require('bin-to-file');
 const s3 = require('../s3');
-const headers = require('../headers');
 const API = process.env.API;
 const router = express.Router();
 module.exports = router;
@@ -34,7 +33,7 @@ router.get(['/:bin', '/:bin/*?'], async (req, res, next) => {
         .put({ bin: req.params.bin, rev: json.revision }, html)
         .then(url => {
           console.log('saved %s', url);
-          res.status(302).redirect(url.replace('s3.amazonaws.com', ''));
+          res.status(302).redirect(url.replace('s3.amazonaws.com/', ''));
         })
         .catch(e => console.log(e));
     })

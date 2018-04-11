@@ -4,8 +4,9 @@
       <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
     </Condition>
     <Redirect>
-      <HttpRedirectCode>307</HttpRedirectCode>
+      <Protocol>https</Protocol>
       <HostName>output-jsbin.now.sh</HostName>
+      <HttpRedirectCode>307</HttpRedirectCode>
     </Redirect>
   </RoutingRule>
 </RoutingRules>
