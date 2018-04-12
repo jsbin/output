@@ -25,33 +25,55 @@ async function run() {
 function query() {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT * from sandbox where limit ${ctr * 20}, 20`,
-      async (error, results) => {
-        if (!error) {
-          const result = await Promise.all(
-            results.map(async result => {
-              return getOwner(result).then(user => {
+      `SELECT * from sandbox limit ${ctr * 20}, 20`,
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          return reject();
+        }
+        return resolve(
+          Promise.all(
+            results.map(result =>
+              getOwner(result).then(user => {
                 if (user) {
-                  const binId = [result.url, result.revision].join('/');
-                  result.meta = `<!-- source: https://jsbin.com/${binId}/edit -->
-<!-- author: @${user.name} -->
-`;
+                  result.meta = metadata({
+                    url: result.url,
+                    revision: result.revision,
+                    user: user.name,
+                  });
                   result.visibility = user.visibility;
                   result.user = user.name;
+                } else {
+                  result.meta = metadata({
+                    url: result.url,
+                    revision: result.revision,
+                  });
                 }
-                return save(result);
-              });
-            })
-          );
-          console.log(result.join('\n'));
-          return resolve();
-        }
 
-        console.log(error);
-        reject();
+                return save(result);
+              })
+            )
+          ).then(result => console.log(result.join('\n')))
+        );
       }
     );
   });
+}
+
+function metadata({
+  url,
+  revision,
+  user = 'anonymous',
+  year = new Date().getFullYear(),
+}) {
+  return `<!--
+
+‣ Created using JS Bin — https://jsbin.com
+‣ Released under the MIT license — https://jsbin.mit-license.org
+‣ Copyright (c) ${year} @${user} — https://jsbin.com/${url}/${revision}/edit
+
+-->
+<meta name="robots" content="noindex">`;
 }
 
 function getOwner({ url, revision } = {}) {

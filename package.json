@@ -28,7 +28,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-standalone": "^6.26.0",
     "backblaze-b2": "^1.0.4",
-    "bin-to-file": "^1.0.6",
+    "bin-to-file": "^1.0.7",
     "body-parser": "^1.18.2",
     "commonmark": "^0.28.1",
     "express": "^4.16.2",

@@ -52,26 +52,24 @@ const save = async body => {
   const url = body.url;
 
   const html = binToFile({ ...body, revision, url });
-  // return html;
-  const result = await b2
-    .getUploadUrl(process.env.B2_BUCKET)
-    .then(({ data }) => {
-      const { uploadUrl, authorizationToken: uploadAuthToken } = data;
 
-      const info = {};
-      if (body.user) info['x-jsbin-user'] = body.user;
-      if (body.visibility !== 'public')
-        info['x-jsbin-visibility'] = body.visibility;
+  await b2.getUploadUrl(process.env.B2_BUCKET).then(({ data }) => {
+    const { uploadUrl, authorizationToken: uploadAuthToken } = data;
 
-      return b2.uploadFile({
-        uploadUrl,
-        uploadAuthToken,
-        filename: `${url}--${revision}.html`,
-        mime: 'text/html', // optional mime type, will default to 'b2/x-auto' if not provided
-        data: Buffer.from(html), // this is expecting a Buffer, not an encoded string
-        info,
-      }); // returns promise
-    });
+    const info = {};
+    if (body.user) info['x-jsbin-user'] = body.user;
+    if (body.visibility !== 'public')
+      info['x-jsbin-visibility'] = body.visibility;
+
+    return b2.uploadFile({
+      uploadUrl,
+      uploadAuthToken,
+      filename: `${url}--${revision}.html`,
+      mime: 'text/html', // optional mime type, will default to 'b2/x-auto' if not provided
+      data: Buffer.from(html), // this is expecting a Buffer, not an encoded string
+      info,
+    }); // returns promise
+  });
   return `https://jsbin.me/${url}/${revision}`;
 };
 
