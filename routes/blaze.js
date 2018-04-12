@@ -51,7 +51,11 @@ const save = async body => {
   const revision = body.revision || 'latest';
   const url = body.url;
 
-  const html = binToFile({ ...body, revision, url });
+  // "fix" http scripts
+  const html = binToFile({ ...body, revision, url })
+    .replace(/src="http:\/\/ajax.googleapis/g, 'src="https://ajax.googleapis')
+    .replace(/src="http:\/\/code.jquery.com/g, 'src="https://code.jquery.com')
+    .replace(/http:\/\/cdnjs.cloudflare.com/g, 'https://cdnjs.cloudflare.com');
 
   await b2.getUploadUrl(process.env.B2_BUCKET).then(({ data }) => {
     const { uploadUrl, authorizationToken: uploadAuthToken } = data;

@@ -68,12 +68,12 @@ function metadata({
 }) {
   return `<!--
 
-‣ Created using JS Bin — https://jsbin.com
-‣ Released under the MIT license — https://jsbin.mit-license.org
-‣ Copyright (c) ${year} @${user} — https://jsbin.com/${url}/${revision}/edit
+> Created using JS Bin - https://jsbin.com
+> Released under the MIT license - https://jsbin.mit-license.org
+> Copyright (c) ${year} ${user} - https://jsbin.com/${url}/${revision}/edit
 
 -->
-<meta name="robots" content="noindex">`;
+<meta name="robots" content="none">`;
 }
 
 function getOwner({ url, revision } = {}) {
