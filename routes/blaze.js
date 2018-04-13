@@ -4,28 +4,37 @@ const bodyParser = require('body-parser');
 const createError = require('http-errors');
 const binToFile = require('bin-to-file');
 const B2 = require('backblaze-b2');
-const less = promisify(require('less').render);
+const less = require('less');
 const Babel = require('babel-standalone');
 const scss = promisify(require('node-sass').render);
 const commonmark = require('commonmark');
+const coffee = require('coffeescript');
 
 const b2 = new B2({
   accountId: process.env.B2_ID,
   applicationKey: process.env.B2_KEY,
 });
 
-b2
+const auth = b2
   .authorize()
   .then(() => console.log('b2 connected'))
   .catch(e => console.log(`b2 failed: ${e}`));
 
 const router = express.Router();
 
+const processorRename = s => {
+  if (s === 'jsx' || s === 'traceur') {
+    return 'babel';
+  }
+
+  return s;
+};
+
 const processors = {
+  coffeescript: source => coffee.compile(source),
   jsx: source => processors.babel(source),
-  less: async source => {
-    return (await less(source)).css;
-  },
+  traceur: source => processors.babel(source),
+  less: source => less.render(source).then(res => res.css),
   babel: s => {
     return Babel.transform(s, {
       presets: ['es2015', 'react', 'stage-0'],
@@ -52,6 +61,7 @@ const save = async body => {
   const url = body.url;
 
   // "fix" http scripts
+  console.log(JSON.stringify(body));
   const html = binToFile({ ...body, revision, url })
     .replace(/src="http:\/\/ajax.googleapis/g, 'src="https://ajax.googleapis')
     .replace(/src="http:\/\/code.jquery.com/g, 'src="https://code.jquery.com')
@@ -80,14 +90,16 @@ const save = async body => {
 async function transform(body) {
   if (body.settings) {
     body.source = {};
+    body.processors = {};
     await Promise.all(
-      Object.entries(JSON.parse(body.settings || '{}').processors).map(
+      Object.entries(JSON.parse(body.settings || '{}').processors || {}).map(
         async ([lang, processor]) => {
           if (lang !== processor) {
             // translate
             body.source[lang] = body[lang];
             let result = body[lang];
             try {
+              body.processors[lang] = processorRename(processor);
               body[lang] = await processors[processor](result);
             } catch (e) {
               console.log(e);
@@ -144,3 +156,15 @@ router.put(['/_', '/:bin', '/:bin/*?'], async (req, res, next) => {
 
 module.exports = router;
 module.exports.save = save;
+
+// if the module isn't being required be another module
+// and there's something being piped in, then —
+if (!module.parent && !process.stdin.isTTY) {
+  (async () => {
+    await auth.then(() => {});
+    const stdin = require('fs').readFileSync(0); // 0 = STDIN
+    save(JSON.parse(stdin.toString()))
+      .then(res => console.log(res))
+      .catch(e => console.log(e));
+  })();
+}

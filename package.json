@@ -30,6 +30,7 @@
     "backblaze-b2": "^1.0.4",
     "bin-to-file": "^1.0.7",
     "body-parser": "^1.18.2",
+    "coffeescript": "^2.2.4",
     "commonmark": "^0.28.1",
     "express": "^4.16.2",
     "http-errors": "^1.6.2",
