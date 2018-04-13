@@ -11,6 +11,7 @@ const commonmark = require('commonmark');
 const coffee = require('coffeescript');
 const pug = require('pug');
 const stylus = require('stylus');
+const typescript = require('typescript');
 
 const b2 = new B2({
   accountId: process.env.B2_ID,
@@ -33,6 +34,10 @@ const processorRename = s => {
 };
 
 const processors = {
+  typescript: source =>
+    typescript.transpileModule(source, {
+      compilerOptions: { module: typescript.ModuleKind.CommonJS },
+    }).outputText,
   less: source => less.render(source).then(res => res.css),
   coffeescript: source => coffee.compile(source),
   jade: source => {
@@ -123,7 +128,6 @@ async function transform(body) {
               body.source[lang] = body[lang];
               body[lang] = res;
             } catch (e) {
-              delete body.processors[lang];
               console.log(body.id, body.url, body.revision, e);
             }
           }
