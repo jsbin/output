@@ -9,6 +9,8 @@ const Babel = require('babel-standalone');
 const scss = promisify(require('node-sass').render);
 const commonmark = require('commonmark');
 const coffee = require('coffeescript');
+const pug = require('pug');
+const stylus = require('stylus');
 
 const b2 = new B2({
   accountId: process.env.B2_ID,
@@ -31,10 +33,27 @@ const processorRename = s => {
 };
 
 const processors = {
-  coffeescript: source => coffee.compile(source),
-  jsx: source => processors.babel(source),
-  traceur: source => processors.babel(source),
   less: source => less.render(source).then(res => res.css),
+  coffeescript: source => coffee.compile(source),
+  jade: source => {
+    if (source.startsWith('!')) {
+      source = ['doctype'].concat(source.split('\n').slice(1)).join('\n');
+    }
+    return pug.render(source);
+  },
+  stylus: source => {
+    return new Promise((resolve, reject) => {
+      stylus.render(source, { filename: 'bin.css' }, (err, css) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(css);
+      });
+    });
+  },
+  // jsx: source => processors.babel(source),
+  // traceur: source => processors.babel(source),
+
   babel: s => {
     return Babel.transform(s, {
       presets: ['es2015', 'react', 'stage-0'],
@@ -99,7 +118,8 @@ async function transform(body) {
             body.source[lang] = body[lang];
             let result = body[lang];
             try {
-              body.processors[lang] = processorRename(processor);
+              processor = processorRename(processor);
+              body.processors[lang] = processor;
               body[lang] = await processors[processor](result);
             } catch (e) {
               console.log(e);
