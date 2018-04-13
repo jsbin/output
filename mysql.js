@@ -29,7 +29,7 @@ async function run() {
 function query() {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT * from sandbox where id>1716598 limit ${ctr * 1000}, 1000`,
+      `SELECT * from sandbox where id>1783613 limit ${ctr * 1000}, 1000`,
       (error, results) => {
         if (error) {
           console.log(error);
@@ -56,7 +56,7 @@ function query() {
 
                 return save(result).catch(e => {
                   console.log(e.message);
-                  return `[bad] ${result.id}`
+                  return `[bad] ${result.id}`;
                 });
               })
             )
@@ -66,41 +66,6 @@ function query() {
     );
   });
 }
-
-function metadata({
-  url,
-  revision,
-  user = 'anonymous',
-  year = new Date().getFullYear(),
-}) {
-  return `<!--
-
-> Created using JS Bin - https://jsbin.com
-> Released under the MIT license - https://jsbin.mit-license.org
-> Copyright (c) ${year} ${user} - https://jsbin.com/${url}/${revision}/edit
-
--->
-<meta name="robots" content="none">`;
-}
-
-function getOwner({ url, revision } = {}) {
-  return new Promise(resolve => {
-    connection.query(
-      `SELECT * from owners where url=? and revision=?`,
-      [url, revision],
-      (error, results) => {
-        if (error || !results) {
-          return resolve(false);
-        }
-
-        if (results) {
-          resolve(results[0]);
-        }
-      }
-    );
-  });
-}
-remy@db:~/output-blaze$
 
 function metadata({
   url,
