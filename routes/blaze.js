@@ -61,10 +61,10 @@ const save = async body => {
   const url = body.url;
 
   // "fix" http scripts
-  console.log(JSON.stringify(body));
   const html = binToFile({ ...body, revision, url })
     .replace(/src="http:\/\/ajax.googleapis/g, 'src="https://ajax.googleapis')
     .replace(/src="http:\/\/code.jquery.com/g, 'src="https://code.jquery.com')
+    .replace(/src="http:\/\/ajax.cdnjs.com/g, 'src="https://ajax.cdnjs.com')
     .replace(/http:\/\/cdnjs.cloudflare.com/g, 'https://cdnjs.cloudflare.com');
 
   await b2.getUploadUrl(process.env.B2_BUCKET).then(({ data }) => {
