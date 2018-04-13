@@ -115,14 +115,16 @@ async function transform(body) {
         async ([lang, processor]) => {
           if (lang !== processor) {
             // translate
-            body.source[lang] = body[lang];
             let result = body[lang];
             try {
               processor = processorRename(processor);
+              const res = await processors[processor](result);
               body.processors[lang] = processor;
-              body[lang] = await processors[processor](result);
+              body.source[lang] = body[lang];
+              body[lang] = res;
             } catch (e) {
-              console.log(e);
+              delete body.processors[lang];
+              console.log(body.id, body.url, body.revision, e);
             }
           }
         }
