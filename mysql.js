@@ -1,6 +1,6 @@
 require('@remy/envy');
 const mysql = require('mysql');
-const { save } = require('./routes/blaze');
+const { save, auth } = require('./routes/blaze');
 var connection = mysql.createConnection({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -10,7 +10,10 @@ var connection = mysql.createConnection({
 
 let ctr = 0;
 connection.connect();
-setTimeout(run, 2000);
+(async () => {
+  await auth.then(() => {});
+  run();
+})();
 
 async function run() {
   try {
@@ -25,7 +28,7 @@ async function run() {
 function query() {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT * from sandbox limit ${ctr * 20}, 20`,
+      `SELECT * from sandbox where id>1138446 limit ${ctr * 1000}, 1000`,
       (error, results) => {
         if (error) {
           console.log(error);
@@ -33,7 +36,7 @@ function query() {
         }
         return resolve(
           Promise.all(
-            results.map(result =>
+            results.filter(_ => _.active === 'y').map(result =>
               getOwner(result).then(user => {
                 if (user) {
                   result.meta = metadata({

@@ -156,6 +156,7 @@ router.put(['/_', '/:bin', '/:bin/*?'], async (req, res, next) => {
 
 module.exports = router;
 module.exports.save = save;
+module.exports.auth = auth;
 
 // if the module isn't being required be another module
 // and there's something being piped in, then —
