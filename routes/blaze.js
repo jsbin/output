@@ -1,4 +1,5 @@
 const { promisify } = require('util');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const createError = require('http-errors');
@@ -22,7 +23,7 @@ const auth = b2
   .authorize()
   .then(() => console.log('b2 connected'))
   .catch(e => console.log(`b2 failed: ${e}`));
-
+// const auth = Promise.resolve();
 const router = express.Router();
 
 const processorRename = s => {
@@ -38,7 +39,12 @@ const processors = {
     typescript.transpileModule(source, {
       compilerOptions: { module: typescript.ModuleKind.CommonJS },
     }).outputText,
-  less: source => less.render(source).then(res => res.css),
+  less: source => {
+    if (source.replace(/['"]/g, '').includes('url(@import')) {
+      throw new Error('bailing on internal less error');
+    }
+    return less.render(source).then(res => res.css);
+  },
   coffeescript: source => coffee.compile(source),
   jade: source => {
     if (source.startsWith('!')) {
@@ -81,6 +87,7 @@ const processors = {
 
 const save = async body => {
   body = await transform(body);
+
   const revision = body.revision || 'latest';
   const url = body.url;
 
@@ -94,7 +101,9 @@ const save = async body => {
   await b2.getUploadUrl(process.env.B2_BUCKET).then(({ data }) => {
     const { uploadUrl, authorizationToken: uploadAuthToken } = data;
 
-    const info = {};
+    const info = {
+      'x-jsbin-created': body.created,
+    };
     if (body.user) info['x-jsbin-user'] = body.user;
     if (body.visibility !== 'public')
       info['x-jsbin-visibility'] = body.visibility;
@@ -128,7 +137,7 @@ async function transform(body) {
               body.source[lang] = body[lang];
               body[lang] = res;
             } catch (e) {
-              console.log(body.id, body.url, body.revision, e);
+              console.log(body.id, body.url, body.revision, e.message);
             }
           }
         }
