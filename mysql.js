@@ -8,6 +8,9 @@ var connection = mysql.createConnection({
   database: process.env.MYSQL_DB,
 });
 
+const start = 8820800;
+const batch = 1;
+
 let ctr = 0;
 connection.connect();
 (async () => {
@@ -29,7 +32,7 @@ async function run() {
 function query() {
   return new Promise((resolve, reject) => {
     connection.query(
-      `SELECT * from sandbox where id>1783613 limit ${ctr * 1000}, 1000`,
+      `SELECT * from sandbox where id>${start} limit ${ctr * batch}, ${batch}`,
       (error, results) => {
         if (error) {
           console.log(error);
@@ -37,29 +40,32 @@ function query() {
         }
         return resolve(
           Promise.all(
-            results.filter(_ => _.active === 'y').map(result =>
-              getOwner(result).then(user => {
-                if (user) {
-                  result.meta = metadata({
-                    url: result.url,
-                    revision: result.revision,
-                    user: user.name,
-                  });
-                  result.visibility = user.visibility;
-                  result.user = user.name;
-                } else {
-                  result.meta = metadata({
-                    url: result.url,
-                    revision: result.revision,
-                  });
-                }
+            results
+              .filter(_ => _.active === 'y')
+              .filter(_ => _.url !== 'ufUgiXi')
+              .map(result =>
+                getOwner(result).then(user => {
+                  if (user) {
+                    result.meta = metadata({
+                      url: result.url,
+                      revision: result.revision,
+                      user: user.name,
+                    });
+                    result.visibility = user.visibility;
+                    result.user = user.name;
+                  } else {
+                    result.meta = metadata({
+                      url: result.url,
+                      revision: result.revision,
+                    });
+                  }
 
-                return save(result).catch(e => {
-                  console.log(e.message);
-                  return `[bad] ${result.id}`;
-                });
-              })
-            )
+                  return save(result).catch(e => {
+                    console.log(e.message);
+                    return `[bad] ${result.id}`;
+                  });
+                })
+              )
           ).then(result => console.log(result.join('\n')))
         );
       }

@@ -13,6 +13,7 @@ const coffee = require('coffeescript');
 const pug = require('pug');
 const stylus = require('stylus');
 const typescript = require('typescript');
+const vm = require('vm');
 
 const b2 = new B2({
   accountId: process.env.B2_ID,
@@ -41,12 +42,16 @@ const processors = {
     }).outputText,
   less: source => {
     if (source.replace(/['"]/g, '').includes('url(@import')) {
-      throw new Error('bailing on internal less error');
+      throw new Error('[less] blocked');
     }
     return less.render(source).then(res => res.css);
   },
   coffeescript: source => coffee.compile(source),
   jade: source => {
+    if (/(process\.|require\()/.test(source)) {
+      throw new Error('[jade] blocked');
+    }
+
     if (source.startsWith('!')) {
       source = ['doctype'].concat(source.split('\n').slice(1)).join('\n');
     }
@@ -62,9 +67,6 @@ const processors = {
       });
     });
   },
-  // jsx: source => processors.babel(source),
-  // traceur: source => processors.babel(source),
-
   babel: s => {
     return Babel.transform(s, {
       presets: ['es2015', 'react', 'stage-0'],
@@ -138,6 +140,7 @@ async function transform(body) {
               body[lang] = res;
             } catch (e) {
               console.log(body.id, body.url, body.revision, e.message);
+              // console.log(e.stack);
             }
           }
         }
@@ -197,7 +200,7 @@ module.exports.auth = auth;
 // and there's something being piped in, then —
 if (!module.parent && !process.stdin.isTTY) {
   (async () => {
-    await auth.then(() => {});
+    // await auth.then(() => {});
     const stdin = require('fs').readFileSync(0); // 0 = STDIN
     save(JSON.parse(stdin.toString()))
       .then(res => console.log(res))
