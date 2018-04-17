@@ -8,8 +8,8 @@ var connection = mysql.createConnection({
   database: process.env.MYSQL_DB,
 });
 
-const start = 8820800;
-const batch = 1;
+const start = 11001128;
+const batch = 1000;
 
 let ctr = 0;
 connection.connect();
